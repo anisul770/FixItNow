@@ -1,0 +1,18 @@
+model Availability {
+  id String @id @default(cuid())
+
+  technicianId String
+
+  technician TechnicianProfile @relation(fields: [technicianId], references: [id])
+
+  date DateTime
+
+  startTime String
+  endTime String
+
+  isBooked Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@map("availabilities")
+}
