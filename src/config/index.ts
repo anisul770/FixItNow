@@ -8,4 +8,6 @@ dotenv.config({
 export default {
     port: process.env.PORT,
     databaseUrl : process.env.DATABASE_URL,
+    salt_rounds : process.env.BYCRPT_SALT_ROUNDS,
+    app_url : process.env.APP_URL,
 }
