@@ -12,7 +12,7 @@ const registerUser = async(req:Request,res:Response) => {
         statusCode : httpStatus.CREATED,
         message : "User registered successfully",
         data : {user}
-    })
+    });
 };
 
 export const userController = {

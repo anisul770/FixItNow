@@ -1,12 +1,16 @@
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import { userRoutes } from "./module/users/user.route";
+import { notFound } from "./middlewares/notFound";
+import config from "./config";
+import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 
 const app : Application = express();
 
-// app.use(cors({
-//     origin:
-// }))
+app.use(cors({
+    origin: config.app_url,
+    credentials : true,
+}))
 
 app.use(express.json());
 
@@ -15,6 +19,9 @@ app.get("/",(req:Request,res:Response)=>{
 })
 
 app.use("/api/users",userRoutes);
+
+app.use(notFound);
+app.use(globalErrorHandler);
 
 export default app;
 
