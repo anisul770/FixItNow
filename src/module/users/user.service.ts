@@ -22,9 +22,10 @@ const registerUserIntoDB = async(paload:any) => {
         },
         include : {
             customerBookings:true,
-            technicianBookings:true
+            technicianBookings:true,
         }
     })
+    return user;
 };
 
 export const userService = {
