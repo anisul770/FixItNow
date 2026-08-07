@@ -4,6 +4,7 @@ import { userRoutes } from "./module/users/user.route";
 import { notFound } from "./middlewares/notFound";
 import config from "./config";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
+import { authRoutes } from "./module/auth/auth.route";
 
 const app : Application = express();
 
@@ -19,6 +20,7 @@ app.get("/",(req:Request,res:Response)=>{
 })
 
 app.use("/api/users",userRoutes);
+app.use("/api/auth",authRoutes);
 
 app.use(notFound);
 app.use(globalErrorHandler);

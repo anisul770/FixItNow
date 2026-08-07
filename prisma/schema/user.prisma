@@ -4,6 +4,8 @@ model User {
   email       String   @unique
   password    String
 
+  activeStatus ActiveStatus @default(ACTIVE)
+
   role         Role     @default(CUSTOMER)
   isBanned     Boolean @default(false)
 

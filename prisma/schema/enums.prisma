@@ -4,6 +4,11 @@ enum Role {
   TECHNICIAN
 }
 
+enum ActiveStatus {
+  ACTIVE
+  BLOCKED
+}
+
 enum BookingStatus {
   REQUESTED
   ACCEPTED
