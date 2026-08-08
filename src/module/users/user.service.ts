@@ -32,7 +32,6 @@ const registerUserIntoDB = async (paload: RegisterUserPayload) => {
         },
         include: {
             customerBookings: true,
-            technicianBookings: true,
         }
     });
     return user;
@@ -49,10 +48,13 @@ const getMyProfileFromDB = async(userId : string) => {
         include :{
             profile:true,
             customerBookings: true,
-            technicianBookings: true,
             customerReviews:true,
-            technicianProfile:true,
-            technicianReviews:true
+            technicianProfile:{
+                include:{
+                    bookings:true,
+                    reviews:true
+                }
+            }
         }
     });
     return user;

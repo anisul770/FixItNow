@@ -2,21 +2,20 @@ model Booking {
   id String @id @default(uuid())
 
   customerId String
+  customer   User   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
   technicianId String
+  technician   TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Restrict)
+
   serviceId String
-
-  customer User @relation("CustomerBookings", fields: [customerId], references: [id])
-
-  technician User @relation("TechnicianBookings", fields: [technicianId], references: [id])
-
-  service Service @relation(fields: [serviceId], references: [id])
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
 
   bookingDate DateTime
 
   startTime String
-  endTime String
+  endTime   String
 
-  address String
+  address            String
   problemDescription String?
 
   totalPrice Float
@@ -24,7 +23,7 @@ model Booking {
   status BookingStatus @default(REQUESTED)
 
   payment Payment?
-  review Review?
+  review  Review?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

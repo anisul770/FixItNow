@@ -1,12 +1,14 @@
 model Payment {
   id String @id @default(uuid())
 
-  bookingId String @unique
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
 
-  booking Booking @relation(fields: [bookingId], references: [id])
+  provider PaymentProvider
+  method   PaymentMethod?
 
-  transactionId String?
-  paymentIntentId String?
+  transactionId   String? @unique
+  paymentIntentId String? @unique
 
   amount Float
 
@@ -15,6 +17,7 @@ model Payment {
   paidAt DateTime?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("payments")
 }

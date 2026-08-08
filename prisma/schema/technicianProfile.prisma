@@ -1,22 +1,27 @@
 model TechnicianProfile {
-  id              String @id @default(uuid())
+  id String @id @default(uuid())
 
-  userId          String @unique
-  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  experience      Int
-  hourlyRate      Float
+  bio        String?
+  skills     String[]
+  location   String?
+  experience Int
+  hourlyRate Float
 
-  averageRating   Float @default(0)
-  totalReviews    Int @default(0)
+  averageRating Float @default(0)
+  totalReviews  Int   @default(0)
 
-  verified        Boolean @default(false)
+  verified Boolean @default(false)
 
-  services        Service[]
-  availability    Availability[]
+  services     Service[]
+  availability Availability[]
+  bookings     Booking[]
+  reviews      Review[]
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("technicians")
 }

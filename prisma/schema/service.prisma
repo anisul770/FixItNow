@@ -1,21 +1,23 @@
 model Service {
-  id              String @id @default(uuid())
+  id String @id @default(uuid())
 
-  technicianId    String
-  categoryId      String
+  technicianId String
+  technician   TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
 
-  technician TechnicianProfile @relation(fields: [technicianId], references: [id])
-  category    Category          @relation(fields: [categoryId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
-  title        String
-  description  String
-  price        Float
-  duration     Int
+  title       String
+  description String
+  price       Float
+  duration    Int
 
-  bookings     Booking[]
+  isActive Boolean @default(true)
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("services")
 }

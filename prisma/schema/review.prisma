@@ -1,20 +1,20 @@
 model Review {
   id String @id @default(uuid())
 
-  bookingId String @unique
-
-  booking Booking @relation(fields: [bookingId], references: [id])
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
 
   customerId String
-
-  customer User @relation("CustomerReviews", fields: [customerId], references: [id])
+  customer   User   @relation(fields: [customerId], references: [id], onDelete: Restrict)
 
   technicianId String
+  technician   TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Restrict)
 
-  technician User @relation("TechnicianReviews", fields: [technicianId], references: [id])
-
-  rating Int
+  rating  Int
   comment String?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
 }

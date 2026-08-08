@@ -2,17 +2,17 @@ model Availability {
   id String @id @default(uuid())
 
   technicianId String
-
-  technician TechnicianProfile @relation(fields: [technicianId], references: [id])
+  technician   TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
 
   date DateTime
 
   startTime String
-  endTime String
+  endTime   String
 
   isBooked Boolean @default(false)
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("availabilities")
 }

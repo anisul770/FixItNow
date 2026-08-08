@@ -1,14 +1,14 @@
 model Category {
-  id          String @id @default(uuid())
+  id String @id @default(uuid())
 
-  name        String @unique
+  name        String  @unique
   description String?
   icon        String?
 
-  services    Service[]
+  services Service[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("categories")
 }
