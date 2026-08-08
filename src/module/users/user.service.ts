@@ -19,7 +19,7 @@ const registerUserIntoDB = async (paload: RegisterUserPayload) => {
             name,
             email,
             password: hashedPassword,
-            role
+            role,
         }
     });
 
@@ -38,8 +38,27 @@ const registerUserIntoDB = async (paload: RegisterUserPayload) => {
     return user;
 };
 
-
+const getMyProfileFromDB = async(userId : string) => {
+    const user = await prisma.user.findUniqueOrThrow({
+        where: {
+            id: userId,
+        },
+        omit: {
+            password:true
+        },
+        include :{
+            profile:true,
+            customerBookings: true,
+            technicianBookings: true,
+            customerReviews:true,
+            technicianProfile:true,
+            technicianReviews:true
+        }
+    });
+    return user;
+}
 
 export const userService = {
     registerUserIntoDB,
+    getMyProfileFromDB
 }
