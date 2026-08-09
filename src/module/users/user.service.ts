@@ -20,6 +20,9 @@ const registerUserIntoDB = async (paload: RegisterUserPayload) => {
             email,
             password: hashedPassword,
             role,
+            profile: {
+                create :{}
+            }
         }
     });
 
@@ -31,6 +34,7 @@ const registerUserIntoDB = async (paload: RegisterUserPayload) => {
             password: true
         },
         include: {
+            profile:true,
             customerBookings: true,
         }
     });
