@@ -5,4 +5,9 @@ export interface RegisterUserPayload {
     email : string;
     password : string;
     role ?: Role;
+    experience ?: number;
+    hourlyRate ?: number;
+    bio ?: string;
+    skills ?: string[];
+    location ?: string;
 }

@@ -4,7 +4,7 @@ import config from "../../config";
 import { RegisterUserPayload } from "./user.interface";
 
 const registerUserIntoDB = async (paload: RegisterUserPayload) => {
-    const { name, email, password, role } = paload;
+    const { name, email, password, role, experience, hourlyRate, bio, skills, location} = paload;
     const isUserExists = await prisma.user.findUnique({
         where: {
             email: email
@@ -12,6 +12,10 @@ const registerUserIntoDB = async (paload: RegisterUserPayload) => {
     });
     if (isUserExists) {
         throw new Error("User already exists with this email");
+    };
+    const isTechnician = role === "TECHNICIAN";
+    if (isTechnician && (experience === undefined || hourlyRate === undefined)) {
+        throw new Error("experience and hourlyRate are required to register as a technician");
     };
     const hashedPassword = await bcrypt.hash(password, Number(config.salt_rounds));
     const createUser = await prisma.user.create({
@@ -22,7 +26,18 @@ const registerUserIntoDB = async (paload: RegisterUserPayload) => {
             role,
             profile: {
                 create :{}
-            }
+            },
+            ...(isTechnician && {
+                technicianProfile: {
+                    create: {
+                        experience: experience as number,
+                        hourlyRate: hourlyRate as number,
+                        bio,
+                        skills,
+                        location
+                    }
+                }
+            })
         }
     });
 
@@ -36,6 +51,7 @@ const registerUserIntoDB = async (paload: RegisterUserPayload) => {
         include: {
             profile:true,
             customerBookings: true,
+            technicianProfile: true
         }
     });
     return user;
