@@ -9,7 +9,7 @@ const getTechnicianProfile = catchAsync(
         const profile = await technicianServices.getTechnicianProfile(req.user?.id as string);
         sendResponse(res,{
             success: true,
-            statusCode : httpStatus.OK,
+            statusCode : httpStatus.OK, 
             message: "Technician profile is retrived successfully",
             data : {profile}
         })
