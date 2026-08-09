@@ -5,6 +5,6 @@ import { technicianController } from "./technician.controller";
 
 const router = Router();
 
-router.get("/profile",auth(Role.ADMIN,Role.TECHNICIAN),technicianController.getTechnicianProfile);
+router.get("/profile",auth(Role.ADMIN,Role.TECHNICIAN,Role.CUSTOMER),technicianController.getTechnicianProfile);
 
 export const technicianRoutes = router;
