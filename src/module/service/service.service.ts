@@ -25,21 +25,6 @@ const createService = async(payload:newServicePayload,userId:string) => {
             duration,
             technician : {connect : {userId}},
             category   : { connect : { id : categoryId } }
-        },
-        include : {
-            technician : {
-                include: {
-                    user : {
-                        omit:{
-                            password:true
-                        },
-                        include : {
-                            profile: true
-                        }
-                    }
-                }
-            },
-            category:true
         }
     });
     return createdService;
