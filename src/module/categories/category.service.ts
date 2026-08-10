@@ -18,6 +18,8 @@ const createCategory = async(name:string) => {
     return createdCategory;
 };
 
+
+
 export const categoryService = {
     createCategory
 }
