@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import { technicianRoutes } from "./module/technician/technician.route";
 import { adminRoutes } from "./module/admin/admin.routes";
 import { categoryRoutes } from "./module/categories/category.route";
+import { serviceRoutes } from "./module/service/service.routes";
 
 
 const app : Application = express();
@@ -31,6 +32,7 @@ app.use("/api/auth",authRoutes);
 app.use("/api/technician",technicianRoutes);
 app.use("/api/admin",adminRoutes);
 app.use("/api/category",categoryRoutes);
+app.use("/api/service",serviceRoutes);
 
 app.use(notFound);
 app.use(globalErrorHandler);
