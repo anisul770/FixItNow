@@ -8,6 +8,7 @@ import { authRoutes } from "./module/auth/auth.route";
 import cookieParser from "cookie-parser";
 import { technicianRoutes } from "./module/technician/technician.route";
 import { adminRoutes } from "./module/admin/admin.routes";
+import { categoryRoutes } from "./module/categories/category.route";
 
 
 const app : Application = express();
@@ -29,6 +30,7 @@ app.use("/api/users",userRoutes);
 app.use("/api/auth",authRoutes);
 app.use("/api/technician",technicianRoutes);
 app.use("/api/admin",adminRoutes);
+app.use("/api/category",categoryRoutes);
 
 app.use(notFound);
 app.use(globalErrorHandler);
