@@ -10,6 +10,7 @@ const allowedTransitions : Record<string,BookingStatus[]> = {
     IN_PROGRESS : [BookingStatus.COMPLETED]
 };
 
+// have to check technician is verified or not before create a booking
 const createBooking = async(payload:newBookingPayload,userId:string) => {
     const {serviceId,bookingDate,startTime,address,problemDescription} = payload;
 

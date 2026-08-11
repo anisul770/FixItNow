@@ -16,6 +16,20 @@ const getAllUsers = catchAsync(
     }
 );
 
+const verifyTechnician = catchAsync(
+    async(req:Request,res:Response,next:NextFunction) => {
+        const technicianId = req.params.id;
+        const verifiedTechnician = await adminService.verifyTechnician(technicianId as string);
+        sendResponse(res,{
+            success: true,
+            statusCode:httpstatus.OK,
+            message:"Technician verified successfully",
+            data : {verifiedTechnician}
+        });
+    }
+)
+
 export const adminController = {
-    getAllUsers
+    getAllUsers,
+    verifyTechnician
 }

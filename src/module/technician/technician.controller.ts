@@ -6,6 +6,7 @@ import httpStatus from "http-status";
 
 const getTechnicianProfile = catchAsync(
     async(req:Request,res:Response,next:NextFunction) => {
+        // have to control technician id from customer side 
         const profile = await technicianServices.getTechnicianProfile(req.user?.id as string);
         sendResponse(res,{
             success: true,

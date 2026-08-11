@@ -8,5 +8,6 @@ const router = Router();
 
 router.get("/users",auth(Role.ADMIN),adminController.getAllUsers);
 router.post("/new_category",auth(Role.ADMIN),categoryController.createCategory);
+router.put("/:id/verify_technician",auth(Role.ADMIN),adminController.verifyTechnician);
 
 export const adminRoutes = router;

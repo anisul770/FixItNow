@@ -20,6 +20,8 @@ const getTechnicianProfile = async(userId:string) => {
     return profile
 }
 
+
+
 export const technicianServices = {
     getTechnicianProfile,
 }
