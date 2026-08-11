@@ -1,6 +1,8 @@
 import { prisma } from "../../lib/prisma";
 import { BookingStatus, Role } from "../../../generated/prisma/enums";
 import { newBookingPayload } from "./booking.interface";
+import { toMinutes } from "../../utils/time";
+import { Prisma } from "../../../generated/prisma/client";
 
 // which status a technician is allowed to move a booking into
 const allowedTransitions : Record<string,BookingStatus[]> = {
@@ -40,20 +42,85 @@ const createBooking = async(payload:newBookingPayload,userId:string) => {
     const endsAt = startHour * 60 + startMinute + service.duration;
     const endTime = `${String(Math.floor(endsAt / 60) % 24).padStart(2,"0")}:${String(endsAt % 60).padStart(2,"0")}`;
 
-    const createdBooking = await prisma.booking.create({
-        data : {
-            customerId : userId,
-            technicianId : service.technicianId,
-            serviceId : service.id,
-            bookingDate : new Date(bookingDate),
-            startTime,
-            endTime,
-            address,
-            problemDescription,
-            totalPrice : service.price
-        }
+    const createdBooking = await prisma.$transaction(async(tx)=>{
+        const freeSlots = await tx.availability.findMany({
+            where : {
+                technicianId : service.technicianId,
+                date : new Date(bookingDate),
+                isBooked : false
+            },
+            orderBy : {
+                startTime : "asc"
+            }
+        });
+
+        const firstIndex = freeSlots.findIndex((slot)=> slot.startTime === startTime);
+        if(firstIndex === -1){
+            throw new Error("The technician is not available at that time");
+        };
+
+        // walk forward until the service duration is covered, the slots must be back to back
+        const claimedIds : string[] = [];
+        let covered = 0;
+        let previousEnd = startTime;
+        for(let index = firstIndex; index < freeSlots.length && covered < service.duration; index++){
+            const slot = freeSlots[index];
+            if(!slot || slot.startTime !== previousEnd){
+                break;
+            };
+            claimedIds.push(slot.id);
+            covered += toMinutes(slot.endTime) - toMinutes(slot.startTime);
+            previousEnd = slot.endTime;
+        };
+        if(covered < service.duration){
+            throw new Error("The technician is not free for the full service duration");
+        };
+
+        // isBooked:false in the filter so that two customers racing the same slot can not both booked it
+        const claimed = await tx.availability.updateMany({
+            where : {
+                id : { in : claimedIds },
+                isBooked : false
+            },
+            data : {
+                isBooked : true
+            }
+        });
+        if(claimed.count !== claimedIds.length){
+            throw new Error("That time was just taken, please pick another slot");
+        };
+
+        return tx.booking.create({
+            data : {
+                customerId : userId,
+                technicianId : service.technicianId,
+                serviceId : service.id,
+                bookingDate : new Date(bookingDate),
+                startTime,
+                endTime,
+                address,
+                problemDescription,
+                totalPrice : service.price
+            }
+        });
     });
     return createdBooking;
+};
+
+// a cancelled or declined booking gives its slots back
+const releaseSlots = async(tx:Prisma.TransactionClient,booking:{technicianId:string;bookingDate:Date;startTime:string;endTime:string}) => {
+    await tx.availability.updateMany({
+        where : {
+            technicianId : booking.technicianId,
+            date : booking.bookingDate,
+            startTime : { gte : booking.startTime },
+            endTime : { lte : booking.endTime },
+            isBooked : true
+        },
+        data : {
+            isBooked : false
+        }
+    });
 };
 
 const getMyBookings = async(userId:string) => {
@@ -166,13 +233,18 @@ const updateBookingStatus = async(bookingId:string,userId:string,status:BookingS
         throw new Error(`A ${booking.status} booking can not be moved to ${status}`);
     };
 
-    const updatedBooking = await prisma.booking.update({
-        where : {
-            id : bookingId
-        },
-        data : {
-            status
-        }
+    const updatedBooking = await prisma.$transaction(async(tx)=>{
+        if(status === BookingStatus.DECLINED || status === BookingStatus.CANCELLED){
+            await releaseSlots(tx,booking);
+        };
+        return tx.booking.update({
+            where : {
+                id : bookingId
+            },
+            data : {
+                status
+            }
+        });
     });
     return updatedBooking;
 }
@@ -190,13 +262,16 @@ const cancelBooking = async(bookingId:string,userId:string) => {
         throw new Error(`A ${booking.status} booking can not be cancelled`);
     };
 
-    const cancelledBooking = await prisma.booking.update({
-        where : {
-            id : bookingId
-        },
-        data : {
-            status : BookingStatus.CANCELLED
-        }
+    const cancelledBooking = await prisma.$transaction(async(tx)=>{
+        await releaseSlots(tx,booking);
+        return tx.booking.update({
+            where : {
+                id : bookingId
+            },
+            data : {
+                status : BookingStatus.CANCELLED
+            }
+        });
     });
     return cancelledBooking;
 }
