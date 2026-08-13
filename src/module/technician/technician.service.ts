@@ -114,7 +114,8 @@ const getAvailabilityByService = async(serviceId:string) => {
             id : serviceId
         },
         select : {
-            technicianId : true
+            technicianId : true,
+            duration : true
         }
     });
     const today = new Date();
@@ -133,7 +134,24 @@ const getAvailabilityByService = async(serviceId:string) => {
             { startTime : "asc" }
         ]
     });
-    return slots;
+
+    // only the slots that start a free run long enough for the whole service,
+    // otherwise the customer picks a slot that createBooking will reject
+    const bookableSlots = slots.filter((slot,index)=>{
+        let covered = 0;
+        let previousEnd = slot.startTime;
+        for(let next = index; next < slots.length && covered < service.duration; next++){
+            const candidate = slots[next];
+            // the run breaks at a gap, at a booked slot, or at the end of the day
+            if(!candidate || candidate.date.getTime() !== slot.date.getTime() || candidate.startTime !== previousEnd){
+                break;
+            };
+            covered += toMinutes(candidate.endTime) - toMinutes(candidate.startTime);
+            previousEnd = candidate.endTime;
+        };
+        return covered >= service.duration;
+    });
+    return bookableSlots;
 }
 
 export const technicianServices = {
