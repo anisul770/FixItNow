@@ -22,14 +22,10 @@ const initilization = catchAsync(
 
 const successPayment = catchAsync(
     async(req:Request,res:Response,next:NextFunction)=>{
-        const booking_id = req.params.booking_id
-        const booking = await paymentService.successPayment(booking_id as string);
-        sendResponse(res,{
-            success:true,
-            statusCode:httpStatus.OK,
-            message:"Booking paid successfully",
-            data:{booking}
-        });
+        const booking_id = req.params.booking_id as string;
+        const val_id = req.body.val_id as string;
+        await paymentService.successPayment(booking_id,val_id);
+        // the gateway posts here, the customer's browser follows this redirect
         res.redirect(`${config.app_url}/api/booking/${booking_id}`);
     }
 );
