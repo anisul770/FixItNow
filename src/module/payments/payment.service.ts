@@ -23,6 +23,14 @@ const initilization = async (booking_id: string) => {
     const booking = await prisma.booking.findUniqueOrThrow({
         where:{
             id : booking_id
+        },
+        include:{
+            service: {
+                include : {
+                    category : true
+                }
+            },
+            customer :true
         }
     });
     if(booking.status === BookingStatus.PAID) {
@@ -36,15 +44,15 @@ const initilization = async (booking_id: string) => {
         currency: 'BDT',
         tran_id: `trx_${booking_id}`, // use unique tran_id for each api call
         success_url: `http://localhost:3000/api/payment/${booking_id}/success`,
-        fail_url: 'http://localhost:3000/fail',
-        cancel_url: 'http://localhost:3000/cancel',
+        fail_url: `http://localhost:3000/api/payment/${booking_id}/fail`,
+        cancel_url: `http://localhost:3000/api/payment/${booking_id}/cancel`,
         ipn_url: 'http://localhost:3000/ipn',
         shipping_method: 'Courier',
-        product_name: 'Computer.',
-        product_category: 'Electronic',
+        product_name: `${booking.service.title}`,
+        product_category: `${booking.service.category.name}`,
         product_profile: 'general',
-        cus_name: 'Customer Name',
-        cus_email: 'customer@example.com',
+        cus_name: `${booking.customer.name}`,
+        cus_email:  `${booking.customer.email}`,
         cus_add1: 'Dhaka',
         cus_add2: 'Dhaka',
         cus_city: 'Dhaka',
@@ -141,7 +149,49 @@ const successPayment = async(booking_id:string,val_id:string) => {
     return paidPayment;
 };
 
+// PaymentStatus has no CANCELLED value, so a gateway cancel is recorded as FAILED too
+const failPayment = async(booking_id:string) => {
+    const payment = await prisma.payment.findUniqueOrThrow({
+        where : {
+            bookingId : booking_id
+        }
+    });
+    // a completed payment must not be downgraded by a late/duplicate gateway callback
+    if(payment.status === PaymentStatus.COMPLETED){
+        return payment;
+    };
+    return prisma.payment.update({
+        where : {
+            bookingId : booking_id
+        },
+        data : {
+            status : PaymentStatus.FAILED
+        }
+    });
+};
+
+const cancelPayment = async(booking_id:string) => {
+    const payment = await prisma.payment.findUniqueOrThrow({
+        where : {
+            bookingId : booking_id
+        }
+    });
+    if(payment.status === PaymentStatus.COMPLETED){
+        return payment;
+    };
+    return prisma.payment.update({
+        where : {
+            bookingId : booking_id
+        },
+        data : {
+            status : PaymentStatus.FAILED
+        }
+    });
+};
+
 export const paymentService = {
     initilization,
-    successPayment
+    successPayment,
+    failPayment,
+    cancelPayment
 };

@@ -30,7 +30,27 @@ const successPayment = catchAsync(
     }
 );
 
+const failPayment = catchAsync(
+    async(req:Request,res:Response,next:NextFunction)=>{
+        const booking_id = req.params.booking_id as string;
+        await paymentService.failPayment(booking_id);
+        // the gateway posts here, the customer's browser follows this redirect
+        res.redirect(`${config.app_url}/api/booking/${booking_id}`);
+    }
+);
+
+const cancelPayment = catchAsync(
+    async(req:Request,res:Response,next:NextFunction)=>{
+        const booking_id = req.params.booking_id as string;
+        await paymentService.cancelPayment(booking_id);
+        // the gateway posts here, the customer's browser follows this redirect
+        res.redirect(`${config.app_url}/api/booking/${booking_id}`);
+    }
+);
+
 export const paymentController = {
     initilization,
-    successPayment
+    successPayment,
+    failPayment,
+    cancelPayment
 }
