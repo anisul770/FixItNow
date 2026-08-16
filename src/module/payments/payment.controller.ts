@@ -8,10 +8,10 @@ import config from "../../config";
 
 const initilization = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-        const apiResponse = await paymentService.initilization(req.params.booking_id as string);
+        const apiResponse = await paymentService.initilization(req.params.booking_id as string,req.user?.id as string);
         sendResponse(res,{
             success:true,
-            statusCode: 200,
+            statusCode: httpStatus.OK,
             message:"Payment initilization done",
             data : {apiResponse}
         });

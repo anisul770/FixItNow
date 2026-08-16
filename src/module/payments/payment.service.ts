@@ -18,7 +18,7 @@ const toPaymentMethod = (cardType:string) => {
     return PaymentMethod.CARD;
 };
 
-const initilization = async (booking_id: string) => {
+const initilization = async (booking_id: string,userId : string) => {
     const sslcz = getGateway();
     const booking = await prisma.booking.findUniqueOrThrow({
         where:{
@@ -33,6 +33,17 @@ const initilization = async (booking_id: string) => {
             customer :true
         }
     });
+    if(booking.customerId !== userId){
+        throw new Error("You can't pay others booking");
+    }
+    const payment = await prisma.payment.findUnique({
+        where:{
+            bookingId : booking_id
+        }
+    })
+    if(payment && payment.status === "COMPLETED"){
+        throw new Error("The payment for this booking is already COMPLETED");
+    }
     if(booking.status === BookingStatus.PAID) {
         throw new Error('This booking is already paid');
     };
@@ -149,7 +160,7 @@ const successPayment = async(booking_id:string,val_id:string) => {
     return paidPayment;
 };
 
-// PaymentStatus has no CANCELLED value, so a gateway cancel is recorded as FAILED too
+
 const failPayment = async(booking_id:string) => {
     const payment = await prisma.payment.findUniqueOrThrow({
         where : {
