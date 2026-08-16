@@ -11,6 +11,7 @@ model Service {
   description String
   price       Float
   duration    Int
+  rating      Float @default(0)
 
   isActive Boolean @default(true)
 

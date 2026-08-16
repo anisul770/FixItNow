@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "services" ADD COLUMN     "rating" DOUBLE PRECISION NOT NULL DEFAULT 0;

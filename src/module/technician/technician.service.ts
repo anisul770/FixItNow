@@ -154,10 +154,24 @@ const getAvailabilityByService = async(serviceId:string) => {
     return bookableSlots;
 }
 
+const getAllTechnician = async() => {
+    const technicians = await prisma.technicianProfile.findMany({
+        include : {
+            user : {
+                omit : {
+                    password : true
+                }
+            }
+        }
+    });
+    return technicians;
+}
+
 export const technicianServices = {
     getTechnicianProfile,
     createSlots,
     getMySlots,
     deleteSlot,
-    getAvailabilityByService
+    getAvailabilityByService,
+    getAllTechnician
 }

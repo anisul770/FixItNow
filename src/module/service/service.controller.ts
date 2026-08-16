@@ -21,7 +21,8 @@ const createService = catchAsync(
 
 const getAllServices = catchAsync(
     async(req:Request,res:Response,next:NextFunction) => {
-        const services = await serviceSerivce.getAllServices();
+        const query =  req.query;
+        const services = await serviceSerivce.getAllServices(query);
         sendResponse(res,{
             success: true,
             statusCode: httpStatus.OK,

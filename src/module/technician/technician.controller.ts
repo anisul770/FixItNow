@@ -68,10 +68,23 @@ const getAvailabilityByService = catchAsync(
     }
 )
 
+const getAllTechnician = catchAsync(
+    async(req:Request,res:Response,next:NextFunction) => {
+        const technicians = await technicianServices.getAllTechnician();
+        sendResponse(res,{
+            success: true,
+            statusCode : httpStatus.OK,
+            message: "Technicians are retrived successfully",
+            data : {technicians}
+        })
+    }
+)
+
 export const technicianController = {
     getTechnicianProfile,
     createSlots,
     getMySlots,
     deleteSlot,
-    getAvailabilityByService
+    getAvailabilityByService,
+    getAllTechnician
 }

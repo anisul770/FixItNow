@@ -11,6 +11,7 @@ router.post("/new_service",auth(Role.ADMIN,Role.TECHNICIAN),serviceController.cr
 router.post("/new_slots",auth(Role.TECHNICIAN),technicianController.createSlots);
 router.get("/my_slots",auth(Role.TECHNICIAN),technicianController.getMySlots);
 router.delete("/slots/:id",auth(Role.TECHNICIAN),technicianController.deleteSlot);
-router.get("/availability/:serviceId",auth(Role.ADMIN,Role.TECHNICIAN,Role.CUSTOMER),technicianController.getAvailabilityByService);
+router.get("/availability/:serviceId",technicianController.getAvailabilityByService);
+router.get("/all",technicianController.getAllTechnician);
 
 export const technicianRoutes = router;
