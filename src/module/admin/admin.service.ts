@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma"
+import { ActiveStatus } from "../../../generated/prisma/enums"
 
 const getAllUsers = async() =>{
     const users = await prisma.user.findMany({
@@ -36,7 +37,23 @@ const verifyTechnician = async(technicianId : string) => {
     return verifiedTechnician;
 };
 
+const updateUserStatus = async(userId : string, activeStatus : ActiveStatus) => {
+    const updatedUser = await prisma.user.update({
+        where : {
+            id : userId
+        },
+        data : {
+            activeStatus
+        },
+        omit : {
+            password : true
+        }
+    });
+    return updatedUser;
+};
+
 export const adminService = {
     getAllUsers,
-    verifyTechnician
+    verifyTechnician,
+    updateUserStatus
 }

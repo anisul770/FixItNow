@@ -16,7 +16,15 @@ const getTechnicianProfile = async(userId:string) => {
             services: true,
             availability: true,
             bookings : true,
-            reviews : true
+            reviews : {
+                include : {
+                    customer : {
+                        select : {
+                            name : true
+                        }
+                    }
+                }
+            }
         }
     });
     return profile

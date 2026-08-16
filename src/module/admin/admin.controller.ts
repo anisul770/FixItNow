@@ -29,7 +29,22 @@ const verifyTechnician = catchAsync(
     }
 )
 
+const updateUserStatus = catchAsync(
+    async(req:Request,res:Response,next:NextFunction) => {
+        const userId = req.params.id as string;
+        const { activeStatus } = req.body;
+        const updatedUser = await adminService.updateUserStatus(userId,activeStatus);
+        sendResponse(res,{
+            success: true,
+            statusCode:httpstatus.OK,
+            message:"User status updated successfully",
+            data : {updatedUser}
+        });
+    }
+)
+
 export const adminController = {
     getAllUsers,
-    verifyTechnician
+    verifyTechnician,
+    updateUserStatus
 }

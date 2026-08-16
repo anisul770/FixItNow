@@ -276,11 +276,44 @@ const cancelBooking = async(bookingId:string,userId:string) => {
     return cancelledBooking;
 }
 
+const getAllBookings = async() => {
+    const bookings = await prisma.booking.findMany({
+        include : {
+            service : {
+                select : {
+                    title : true,
+                    duration : true
+                }
+            },
+            technician : {
+                select : {
+                    user : {
+                        select : {
+                            name : true
+                        }
+                    }
+                }
+            },
+            customer : {
+                select : {
+                    name : true,
+                    email : true
+                }
+            }
+        },
+        orderBy : {
+            bookingDate : "desc"
+        }
+    });
+    return bookings;
+};
+
 export const bookingService = {
     createBooking,
     getMyBookings,
     getTechnicianBookings,
     getSingleBooking,
     updateBookingStatus,
-    cancelBooking
+    cancelBooking,
+    getAllBookings
 }
