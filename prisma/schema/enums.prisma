@@ -30,9 +30,3 @@ enum PaymentProvider {
   STRIPE
   SSLCOMMERZ
 }
-
-enum PaymentMethod {
-  CARD
-  MOBILE_BANKING
-  BANK_TRANSFER
-}

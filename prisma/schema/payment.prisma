@@ -5,7 +5,8 @@ model Payment {
   booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
 
   provider PaymentProvider
-  method   PaymentMethod?
+  methodType String?
+  method     String?
 
   transactionId   String? @unique
   paymentIntentId String? @unique

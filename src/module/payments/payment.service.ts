@@ -1,22 +1,10 @@
 import SSLCommerzPayment from "sslcommerz-lts";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
-import { BookingStatus, PaymentMethod, PaymentProvider, PaymentStatus } from "../../../generated/prisma/enums";
+import { BookingStatus, PaymentProvider, PaymentStatus, Role } from "../../../generated/prisma/enums";
 
 const isLive = config.is_live === "true";
 const getGateway = () => new SSLCommerzPayment(config.store_id as string, config.store_passwd as string, isLive);
-
-// SSLCommerz sends card_type like "VISA-Dutch Bangla" or "DBBLMOBILEBANKING-Rocket"
-const toPaymentMethod = (cardType:string) => {
-    const type = cardType.toUpperCase();
-    if(type.includes("MOBILEBANKING") || type.includes("BKASH") || type.includes("NAGAD") || type.includes("ROCKET")){
-        return PaymentMethod.MOBILE_BANKING;
-    };
-    if(type.includes("INTERNETBANKING") || type.includes("IBBL")){
-        return PaymentMethod.BANK_TRANSFER;
-    };
-    return PaymentMethod.CARD;
-};
 
 const initilization = async (booking_id: string,userId : string) => {
     const sslcz = getGateway();
@@ -153,7 +141,8 @@ const successPayment = async(booking_id:string,val_id:string) => {
                 status : PaymentStatus.COMPLETED,
                 paidAt : new Date(),
                 transactionId : validation.bank_tran_id,
-                method : toPaymentMethod(validation.card_type || "")
+                methodType : validation.card_type as string,
+                method : validation.card_brand as string
             }
         });
     });
@@ -200,9 +189,111 @@ const cancelPayment = async(booking_id:string) => {
     });
 };
 
+const getMyPayments = async(customerId:string) => {
+    const payments = await prisma.payment.findMany({
+        where : {
+            booking : {
+                customerId
+            }
+        },
+        include : {
+            booking : {
+                select : {
+                    bookingDate : true,
+                    service : {
+                        select : {
+                            title : true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy : {
+            createdAt : "desc"
+        }
+    });
+    return payments;
+};
+
+const getPaymentDetails = async(booking_id:string,userId:string,role:Role) => {
+    const payment = await prisma.payment.findUniqueOrThrow({
+        where : {
+            bookingId : booking_id
+        },
+        include : {
+            booking : {
+                include : {
+                    service : {
+                        select : {
+                            title : true
+                        }
+                    },
+                    customer : {
+                        select : {
+                            name : true,
+                            email : true
+                        }
+                    },
+                    technician : {
+                        select : {
+                            user : {
+                                select : {
+                                    name : true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+    if(role !== Role.ADMIN && payment.booking.customerId !== userId){
+        throw new Error("You are not allowed to see this payment");
+    };
+    return payment;
+};
+
+const getAllPayments = async() => {
+    const payments = await prisma.payment.findMany({
+        include : {
+            booking : {
+                include : {
+                    service : {
+                        select : {
+                            title : true
+                        }
+                    },
+                    customer : {
+                        select : {
+                            name : true,
+                            email : true
+                        }
+                    },
+                    technician : {
+                        select : {
+                            user : {
+                                select : {
+                                    name : true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        orderBy : {
+            createdAt : "desc"
+        }
+    });
+    return payments;
+};
+
 export const paymentService = {
     initilization,
     successPayment,
     failPayment,
-    cancelPayment
+    cancelPayment,
+    getMyPayments,
+    getPaymentDetails,
+    getAllPayments
 };
