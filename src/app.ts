@@ -28,7 +28,7 @@ app.use(cookieParser());
 
 app.get("/", (req: Request, res: Response) => {
     res.status(200).json({
-        message: "Welcome to DevPulse",
+        message: "Welcome to Fix It Now",
         author: "Anisul Haque",
         admin: "abc@gmail.com   pass:1234",
         technician: "abc{8-9}@gmail.com   pass:1234",
