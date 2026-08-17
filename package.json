@@ -33,6 +33,7 @@
   "devDependencies": {
     "@types/node": "^26.1.2",
     "@types/pg": "^8.20.3",
+    "@typescript/typescript6": "^6.0.2",
     "prisma": "^7.9.1",
     "tsx": "^4.23.5",
     "typescript": "^7.0.2"
