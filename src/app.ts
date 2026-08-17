@@ -15,30 +15,36 @@ import { paymentRoutes } from "./module/payments/payment.routes";
 import { reviewRoutes } from "./module/review/review.routes";
 
 
-const app : Application = express();
+const app: Application = express();
 
 app.use(cors({
     origin: config.app_url,
-    credentials : true,
+    credentials: true,
 }))
 
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.get("/",(req:Request,res:Response)=>{
-    res.send("Hello World");
+app.get("/", (req: Request, res: Response) => {
+    res.status(200).json({
+        message: "Welcome to DevPulse",
+        author: "Anisul Haque",
+        admin: "abc@gmail.com   pass:1234",
+        technician: "abc<8/9>@gmail.com   pass:1234",
+        customer : "abc<1-7>@gmail.com.   pass:1234"
+    })
 })
 
-app.use("/api/users",userRoutes);
-app.use("/api/auth",authRoutes);
-app.use("/api/technician",technicianRoutes);
-app.use("/api/admin",adminRoutes);
-app.use("/api/category",categoryRoutes);
-app.use("/api/service",serviceRoutes);
-app.use("/api/booking",bookingRoutes);
-app.use("/api/payment",paymentRoutes);
-app.use("/api/review",reviewRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/technician", technicianRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/category", categoryRoutes);
+app.use("/api/service", serviceRoutes);
+app.use("/api/booking", bookingRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/review", reviewRoutes);
 
 app.use(notFound);
 app.use(globalErrorHandler);
