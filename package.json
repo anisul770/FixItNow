@@ -4,11 +4,13 @@
   "description": "",
   "license": "ISC",
   "author": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/server.mjs",
+    "start": "node dist/server.js",
     "dev": "tsx watch ./src/server.ts",
     "build": "tsup",
+    "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
