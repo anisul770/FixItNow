@@ -2450,7 +2450,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.status(200).json({
+    message: "Welcome to DevPulse",
+    author: "Anisul Haque",
+    admin: "abc@gmail.com   pass:1234",
+    technician: "abc<8/9>@gmail.com   pass:1234",
+    customer: "abc<1-7>@gmail.com.   pass:1234"
+  });
 });
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
