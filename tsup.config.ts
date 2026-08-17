@@ -3,7 +3,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
     entry: ["src/server.ts"],
-    format: ["esm","cjs"], // Prisma's generated client requires import.meta.url, so CJS output is not viable
+    format: ["esm"], // Prisma's generated client requires import.meta.url, so CJS output is not viable
     target: "esnext",
     outDir: "dist",
     clean: true,
