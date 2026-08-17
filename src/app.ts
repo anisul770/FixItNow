@@ -31,8 +31,8 @@ app.get("/", (req: Request, res: Response) => {
         message: "Welcome to DevPulse",
         author: "Anisul Haque",
         admin: "abc@gmail.com   pass:1234",
-        technician: "abc<8/9>@gmail.com   pass:1234",
-        customer : "abc<1-7>@gmail.com.   pass:1234"
+        technician: "abc{8-9}@gmail.com   pass:1234",
+        customer : "abc{1-7}@gmail.com.   pass:1234"
     })
 })
 
