@@ -42,9 +42,9 @@ const initilization = async (booking_id: string,userId : string) => {
         total_amount: `${booking.totalPrice}`,
         currency: 'BDT',
         tran_id: `trx_${booking_id}`, // use unique tran_id for each api call
-        success_url: `${config.app_url}api/payment/${booking_id}/success`,
-        fail_url: `${config.app_url}api/payment/${booking_id}/fail`,
-        cancel_url: `${config.app_url}api/payment/${booking_id}/cancel`,
+        success_url: `${config.app_url}/api/payment/${booking_id}/success`,
+        fail_url: `${config.app_url}/api/payment/${booking_id}/fail`,
+        cancel_url: `${config.app_url}/api/payment/${booking_id}/cancel`,
         ipn_url: 'http://localhost:3000/ipn',
         shipping_method: 'Courier',
         product_name: `${booking.service.title}`,
