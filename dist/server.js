@@ -1110,7 +1110,9 @@ var getAllServices = async (query) => {
   }
   if (query.rating) {
     andConditions.push({
-      rating: { gte: Number(query.rating) }
+      technician: {
+        averageRating: { gte: Number(query.rating) }
+      }
     });
   }
   const services = await prisma.service.findMany({
