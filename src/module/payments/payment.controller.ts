@@ -27,7 +27,7 @@ const successPayment = catchAsync(
         const val_id = req.body.val_id as string;
         await paymentService.successPayment(booking_id,val_id);
         // the gateway posts here, the customer's browser follows this redirect
-        res.redirect(`${config.app_url}/api/booking/${booking_id}`);
+        res.redirect(`${config.front_url}/api/booking/${booking_id}`);
     }
 );
 
@@ -36,7 +36,7 @@ const failPayment = catchAsync(
         const booking_id = req.params.booking_id as string;
         await paymentService.failPayment(booking_id);
         // the gateway posts here, the customer's browser follows this redirect
-        res.redirect(`${config.app_url}/api/booking/${booking_id}`);
+        res.redirect(`${config.front_url}/api/booking/${booking_id}`);
     }
 );
 
@@ -45,7 +45,7 @@ const cancelPayment = catchAsync(
         const booking_id = req.params.booking_id as string;
         await paymentService.cancelPayment(booking_id);
         // the gateway posts here, the customer's browser follows this redirect
-        res.redirect(`${config.app_url}/api/booking/${booking_id}`);
+        res.redirect(`${config.front_url}/api/booking/${booking_id}`);
     }
 );
 
