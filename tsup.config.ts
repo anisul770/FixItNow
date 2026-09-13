@@ -2,7 +2,10 @@ import { defineConfig } from "tsup";
 
 
 export default defineConfig({
-    entry: ["src/server.ts"],
+    // server.ts boots an HTTP listener for local dev / `npm start`.
+    // app.ts is the same Express app without listen(), bundled for the
+    // Vercel serverless handler in api/index.js
+    entry: ["src/server.ts", "src/app.ts"],
     format: ["esm"], // Prisma's generated client requires import.meta.url, so CJS output is not viable
     target: "esnext",
     outDir: "dist",
