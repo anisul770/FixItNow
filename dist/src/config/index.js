@@ -8,6 +8,7 @@ export default {
     databaseUrl: process.env.DATABASE_URL,
     salt_rounds: process.env.BYCRPT_SALT_ROUNDS,
     app_url: process.env.APP_URL,
+    front_url: process.env.FRONT_URL,
     jwt_access_secret: process.env.JWT_ACCESS_SECRET,
     jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
     jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN,
