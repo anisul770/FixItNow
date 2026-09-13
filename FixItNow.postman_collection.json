@@ -2,19 +2,134 @@
   "info": {
     "_postman_id": "6e39d43d-ded6-49a9-8bd9-87a6fe279911",
     "name": "FixItNow",
+    "description": "Complete REST API reference for the FixItNow backend, generated from the Express routes/controllers so the frontend has an accurate contract to build against.\n\nSeeded demo accounts (all password `1234`):\n- Admin: abc@gmail.com\n- Technician: abc8@gmail.com / abc9@gmail.com\n- Customer: abc1@gmail.com .. abc7@gmail.com\n\nAuth: log in with the **Auth > Login** request first. It stores the returned `access_token`/`refresh_token` as collection variables automatically, and every other request (except the ones marked \"No Auth\") sends `Authorization: Bearer {{access_token}}`. The API also accepts an `accessToken` httpOnly cookie, which Postman's cookie jar will pick up from the Login response as well.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "54851279",
-    "_collection_link": "https://go.postman.co/collection/54851279-6e39d43d-ded6-49a9-8bd9-87a6fe279911?source=collection_link"
+    "_exporter_id": "54851279"
   },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{access_token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://fix-it-now-tau.vercel.app", "description": "From APP_URL in .env" },
+    { "key": "access_token", "value": "", "description": "Set automatically by Auth > Login / Refresh Token" },
+    { "key": "refresh_token", "value": "", "description": "Set automatically by Auth > Login" },
+    { "key": "categoryId", "value": "", "description": "Category id, e.g. from Category > Get All Categories" },
+    { "key": "serviceId", "value": "", "description": "Service id, e.g. from Service > Get All Services" },
+    { "key": "technicianId", "value": "", "description": "TechnicianProfile id (not the User id) - from Technician > Get All Technicians" },
+    { "key": "userId", "value": "", "description": "User id - from Admin > Get All Users" },
+    { "key": "bookingId", "value": "", "description": "Booking id - from Booking > Create New Booking / Get My Bookings" },
+    { "key": "slotId", "value": "", "description": "Availability slot id - from Technician > Get My Slots" },
+    { "key": "reviewId", "value": "", "description": "Review id - from Review > Get My Reviews" },
+    { "key": "val_id", "value": "", "description": "SSLCommerz validation id, sent by the gateway on the success callback" }
+  ],
   "item": [
+    {
+      "name": "Home",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{base_url}}/", "host": ["{{base_url}}"], "path": [""] }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth",
+      "description": "Login and token refresh. Both public.",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    if (data?.data?.accessToken) pm.collectionVariables.set(\"access_token\", data.data.accessToken);",
+                  "    if (data?.data?.refreshToken) pm.collectionVariables.set(\"refresh_token\", data.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"abc1@gmail.com\",\n  \"password\": \"1234\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"] },
+            "description": "Sets accessToken/refreshToken as httpOnly cookies and also returns them in the response body. This request's test script saves both into collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    if (data?.data?.accessToken) pm.collectionVariables.set(\"access_token\", data.data.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/auth/refresh-token", "host": ["{{base_url}}"], "path": ["api", "auth", "refresh-token"] },
+            "description": "Reads the refreshToken httpOnly cookie set by Login (no body needed). Issues a new accessToken cookie + response body."
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "User",
       "item": [
         {
           "name": "Register",
           "request": {
-            "method": "GET",
-            "header": []
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"1234\",\n  \"role\": \"CUSTOMER\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/users/register", "host": ["{{base_url}}"], "path": ["api", "users", "register"] },
+            "description": "role defaults to CUSTOMER if omitted. See 'Register (Technician)' for the TECHNICIAN payload."
+          },
+          "response": []
+        },
+        {
+          "name": "Register (Technician)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"1234\",\n  \"role\": \"TECHNICIAN\",\n  \"experience\": 5,\n  \"hourlyRate\": 500,\n  \"bio\": \"Certified electrician with 5 years of experience\",\n  \"skills\": [\"Electrical\", \"Wiring\"],\n  \"location\": \"Dhaka\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/users/register", "host": ["{{base_url}}"], "path": ["api", "users", "register"] },
+            "description": "experience and hourlyRate are required when role is TECHNICIAN. bio, skills and location are optional."
           },
           "response": []
         },
@@ -22,36 +137,24 @@
           "name": "getProfile",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/users/me", "host": ["{{base_url}}"], "path": ["api", "users", "me"] },
+            "description": "Any authenticated role."
           },
           "response": []
         },
         {
           "name": "update",
           "request": {
-            "method": "GET",
-            "header": []
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Auth",
-      "item": [
-        {
-          "name": "Login",
-          "request": {
-            "method": "GET",
-            "header": []
-          },
-          "response": []
-        },
-        {
-          "name": "refresh",
-          "request": {
-            "method": "GET",
-            "header": []
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"+8801700000000\",\n  \"address\": \"House 12, Road 5, Dhaka\",\n  \"profilePhoto\": \"https://example.com/photo.jpg\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/users/my-profile", "host": ["{{base_url}}"], "path": ["api", "users", "my-profile"] },
+            "description": "Updates User.name plus the Profile (phone/address/profilePhoto). Any authenticated role."
           },
           "response": []
         }
@@ -64,23 +167,39 @@
           "name": "profile",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/technician/profile", "host": ["{{base_url}}"], "path": ["api", "technician", "profile"] },
+            "description": "Returns the logged-in technician's own TechnicianProfile (services, availability, bookings, reviews). Caller must be logged in as a TECHNICIAN."
           },
           "response": []
         },
         {
           "name": "newService",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"AC Repair\",\n  \"description\": \"Fix air conditioning cooling issues\",\n  \"price\": 1200,\n  \"duration\": 60,\n  \"categoryId\": \"{{categoryId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/technician/new_service", "host": ["{{base_url}}"], "path": ["api", "technician", "new_service"] },
+            "description": "duration is in minutes. ADMIN or TECHNICIAN only."
           },
           "response": []
         },
         {
           "name": "newSlots",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-09-10\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDuration\": 60\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/technician/new_slots", "host": ["{{base_url}}"], "path": ["api", "technician", "new_slots"] },
+            "description": "Splits the working window (startTime-endTime, 'HH:mm') into Availability slots of slotDuration minutes. TECHNICIAN only."
           },
           "response": []
         },
@@ -88,31 +207,41 @@
           "name": "mySlots",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/technician/my_slots", "host": ["{{base_url}}"], "path": ["api", "technician", "my_slots"] },
+            "description": "TECHNICIAN only."
           },
           "response": []
         },
         {
           "name": "deleteSlots",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/technician/slots/{{slotId}}", "host": ["{{base_url}}"], "path": ["api", "technician", "slots", "{{slotId}}"] },
+            "description": "Fails if the slot is already booked. TECHNICIAN only, and only the owning technician."
           },
           "response": []
         },
         {
           "name": "slotByService",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/technician/availability/{{serviceId}}", "host": ["{{base_url}}"], "path": ["api", "technician", "availability", "{{serviceId}}"] },
+            "description": "Public. Returns the free upcoming slots (from today) for the technician who owns this service, filtered to runs long enough to cover the service duration."
           },
           "response": []
         },
         {
           "name": "all Technician",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/technician/all", "host": ["{{base_url}}"], "path": ["api", "technician", "all"] },
+            "description": "Public."
           },
           "response": []
         }
@@ -120,28 +249,38 @@
     },
     {
       "name": "Admin",
+      "description": "ADMIN role only for every request in this folder.",
       "item": [
         {
           "name": "allUsers",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/admin/users", "host": ["{{base_url}}"], "path": ["api", "admin", "users"] }
           },
           "response": []
         },
         {
           "name": "newCategory",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Plumbing\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/admin/new_category", "host": ["{{base_url}}"], "path": ["api", "admin", "new_category"] }
           },
           "response": []
         },
         {
           "name": "verifyTechnician",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "PUT",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/admin/{{technicianId}}/verify_technician", "host": ["{{base_url}}"], "path": ["api", "admin", "{{technicianId}}", "verify_technician"] },
+            "description": "The :id here is a TechnicianProfile id, not a User id."
           },
           "response": []
         },
@@ -149,15 +288,23 @@
           "name": "allBookings",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/admin/bookings", "host": ["{{base_url}}"], "path": ["api", "admin", "bookings"] }
           },
           "response": []
         },
         {
           "name": "userStatus",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activeStatus\": \"BLOCKED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/admin/{{userId}}/status", "host": ["{{base_url}}"], "path": ["api", "admin", "{{userId}}", "status"] },
+            "description": "activeStatus is one of: ACTIVE, BLOCKED. The :id here is a User id."
           },
           "response": []
         },
@@ -165,7 +312,8 @@
           "name": "allPayments",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/admin/payments", "host": ["{{base_url}}"], "path": ["api", "admin", "payments"] }
           },
           "response": []
         }
@@ -177,8 +325,11 @@
         {
           "name": "allCategory",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/category/all", "host": ["{{base_url}}"], "path": ["api", "category", "all"] },
+            "description": "Public."
           },
           "response": []
         }
@@ -190,8 +341,27 @@
         {
           "name": "allService",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/service/all?title=&categoryId=&location=&price=&rating=&limit=&page=&sortBy=&sortOrder=&searchTerm=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "service", "all"],
+              "query": [
+                { "key": "title", "value": "", "disabled": true },
+                { "key": "categoryId", "value": "{{categoryId}}", "disabled": true },
+                { "key": "location", "value": "", "disabled": true },
+                { "key": "price", "value": "", "disabled": true },
+                { "key": "rating", "value": "", "disabled": true },
+                { "key": "limit", "value": "10", "disabled": true },
+                { "key": "page", "value": "1", "disabled": true },
+                { "key": "sortBy", "value": "price", "disabled": true },
+                { "key": "sortOrder", "value": "asc", "disabled": true },
+                { "key": "searchTerm", "value": "", "disabled": true }
+              ]
+            },
+            "description": "Public. All query params are optional filters - enable the ones you need."
           },
           "response": []
         }
@@ -201,18 +371,27 @@
       "name": "Booking",
       "item": [
         {
-          "name": "bookingList",
+          "name": "newBooking",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceId\": \"{{serviceId}}\",\n  \"bookingDate\": \"2026-09-10\",\n  \"startTime\": \"09:00\",\n  \"address\": \"House 12, Road 5, Dhaka\",\n  \"problemDescription\": \"AC not cooling properly\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/booking/new_booking", "host": ["{{base_url}}"], "path": ["api", "booking", "new_booking"] },
+            "description": "startTime must match a free Availability slot ('HH:mm') for the service's technician. problemDescription is optional. CUSTOMER or TECHNICIAN."
           },
           "response": []
         },
         {
-          "name": "newBooking",
+          "name": "bookingList",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/booking/my_bookings", "host": ["{{base_url}}"], "path": ["api", "booking", "my_bookings"] },
+            "description": "Any authenticated role - returns bookings relevant to the logged-in user."
           },
           "response": []
         },
@@ -220,23 +399,9 @@
           "name": "technician booking",
           "request": {
             "method": "GET",
-            "header": []
-          },
-          "response": []
-        },
-        {
-          "name": "updateStatus",
-          "request": {
-            "method": "GET",
-            "header": []
-          },
-          "response": []
-        },
-        {
-          "name": "cancelBooking",
-          "request": {
-            "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/booking/technician_bookings", "host": ["{{base_url}}"], "path": ["api", "booking", "technician_bookings"] },
+            "description": "TECHNICIAN only - incoming bookings for the logged-in technician."
           },
           "response": []
         },
@@ -244,7 +409,34 @@
           "name": "SingleBooking",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/booking/{{bookingId}}", "host": ["{{base_url}}"], "path": ["api", "booking", "{{bookingId}}"] },
+            "description": "CUSTOMER or TECHNICIAN, must be a party to the booking."
+          },
+          "response": []
+        },
+        {
+          "name": "updateStatus",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACCEPTED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/booking/{{bookingId}}/status", "host": ["{{base_url}}"], "path": ["api", "booking", "{{bookingId}}", "status"] },
+            "description": "status is one of: REQUESTED, ACCEPTED, DECLINED, PAID, IN_PROGRESS, COMPLETED, CANCELLED. TECHNICIAN only."
+          },
+          "response": []
+        },
+        {
+          "name": "cancelBooking",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/booking/{{bookingId}}/cancel", "host": ["{{base_url}}"], "path": ["api", "booking", "{{bookingId}}", "cancel"] },
+            "description": "CUSTOMER only."
           },
           "response": []
         }
@@ -257,15 +449,46 @@
           "name": "initialization",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/payment/{{bookingId}}/init", "host": ["{{base_url}}"], "path": ["api", "payment", "{{bookingId}}", "init"] },
+            "description": "Starts the SSLCommerz session for the booking and returns the gateway payload (incl. GatewayPageURL to redirect the customer to). CUSTOMER only."
           },
           "response": []
         },
         {
-          "name": "paymentDetails",
+          "name": "success",
           "request": {
-            "method": "GET",
-            "header": []
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [{ "key": "val_id", "value": "{{val_id}}" }]
+            },
+            "url": { "raw": "{{base_url}}/api/payment/{{bookingId}}/success", "host": ["{{base_url}}"], "path": ["api", "payment", "{{bookingId}}", "success"] },
+            "description": "Gateway callback - SSLCommerz posts here after a successful payment, then the customer's browser is redirected. Not called directly by the frontend."
+          },
+          "response": []
+        },
+        {
+          "name": "fail",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/payment/{{bookingId}}/fail", "host": ["{{base_url}}"], "path": ["api", "payment", "{{bookingId}}", "fail"] },
+            "description": "Gateway callback - SSLCommerz posts here after a failed payment. Not called directly by the frontend."
+          },
+          "response": []
+        },
+        {
+          "name": "cancel",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/payment/{{bookingId}}/cancel", "host": ["{{base_url}}"], "path": ["api", "payment", "{{bookingId}}", "cancel"] },
+            "description": "Gateway callback - SSLCommerz posts here when the customer cancels on the gateway page. Not called directly by the frontend."
           },
           "response": []
         },
@@ -273,7 +496,19 @@
           "name": "myPayments",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/payment/my_payments", "host": ["{{base_url}}"], "path": ["api", "payment", "my_payments"] },
+            "description": "CUSTOMER only."
+          },
+          "response": []
+        },
+        {
+          "name": "paymentDetails",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/payment/{{bookingId}}/details", "host": ["{{base_url}}"], "path": ["api", "payment", "{{bookingId}}", "details"] },
+            "description": "CUSTOMER or ADMIN."
           },
           "response": []
         }
@@ -285,8 +520,15 @@
         {
           "name": "createReview",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Great service, very professional!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/review/{{bookingId}}", "host": ["{{base_url}}"], "path": ["api", "review", "{{bookingId}}"] },
+            "description": "comment is optional. CUSTOMER only, must own the booking."
           },
           "response": []
         },
@@ -294,43 +536,50 @@
           "name": "myReviews",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/review/my_reviews", "host": ["{{base_url}}"], "path": ["api", "review", "my_reviews"] },
+            "description": "CUSTOMER only."
           },
           "response": []
         },
         {
           "name": "editReview",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Updated comment\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/api/review/{{reviewId}}", "host": ["{{base_url}}"], "path": ["api", "review", "{{reviewId}}"] },
+            "description": "rating and comment are both optional. CUSTOMER only, must own the review."
           },
           "response": []
         },
         {
           "name": "reviewOfTechnician",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/review/technician/{{technicianId}}", "host": ["{{base_url}}"], "path": ["api", "review", "technician", "{{technicianId}}"] },
+            "description": "Public."
           },
           "response": []
         },
         {
           "name": "ReviewByService",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/review/service/{{serviceId}}", "host": ["{{base_url}}"], "path": ["api", "review", "service", "{{serviceId}}"] },
+            "description": "Public."
           },
           "response": []
         }
       ]
-    },
-    {
-      "name": "Home",
-      "request": {
-        "method": "GET",
-        "header": []
-      },
-      "response": []
     }
   ]
 }

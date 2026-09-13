@@ -81,13 +81,17 @@ const getMyProfileFromDB = async(userId : string) => {
 }
 
 const updateMyProfile = async(userId:string,payload:any) => {
-    const {name,address,phone,profilePhoto} = payload;
+    const {name,address,phone,profilePhoto,password} = payload;
+    const hashedPassword = password
+        ? await bcrypt.hash(password, Number(config.salt_rounds))
+        : undefined;
     const updatedUser = await prisma.user.update({
         where:{
             id:userId
         },
         data: {
             name,
+            ...(hashedPassword && {password: hashedPassword}),
             profile : {
                 upsert :{
                     create: {profilePhoto,phone,address},
