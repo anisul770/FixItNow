@@ -1,0 +1,5 @@
+API-only project. Vercel requires an output directory to exist after the
+build, but everything is served by the function in api/index.js.
+
+Deliberately no index.html here — Vercel checks the filesystem before
+rewrites, so an index.html would shadow the GET / route in src/app.ts.
