@@ -44,9 +44,6 @@ export const auth = (...requiredRoles : Role[]) => {
         const user = await prisma.user.findFirst({
             where : {
                 id,
-                email,
-                role,
-                name
             }
         });
         if(!user){
